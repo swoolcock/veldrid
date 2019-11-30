@@ -402,7 +402,7 @@ namespace Veldrid.Sdl2
                 {
                     eventHandler(ref ev);
                 }
-                else if (_customEventHandler != null && !_customEventHandler(ref ev))
+                else if (_customEventHandler == null || !_customEventHandler(ref ev))
                 {
                     HandleEvent(&ev);
                 }
