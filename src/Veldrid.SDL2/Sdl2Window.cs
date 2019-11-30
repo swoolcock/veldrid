@@ -44,6 +44,8 @@ namespace Veldrid.Sdl2
         private bool _newWindowTitleReceived;
         private bool _firstMouseEvent = true;
 
+        private SDLEventHandler _customEventHandler;
+
         public Sdl2Window(string title, int x, int y, int width, int height, SDL_WindowFlags flags, bool threadedProcessing)
         {
             _threadedProcessing = threadedProcessing;
@@ -101,6 +103,8 @@ namespace Veldrid.Sdl2
                 PostWindowCreated(0);
             }
         }
+
+        public void SetCustomEventHandler(SDLEventHandler customEventHandler) => _customEventHandler = customEventHandler;
 
         public int X { get => _cachedPosition.Value.X; set => SetWindowPosition(value, Y); }
         public int Y { get => _cachedPosition.Value.Y; set => SetWindowPosition(X, value); }
@@ -382,13 +386,13 @@ namespace Veldrid.Sdl2
             for (int i = 0; i < _events.Count; i++)
             {
                 SDL_Event ev = _events[i];
-                if (eventHandler == null)
-                {
-                    HandleEvent(&ev);
-                }
-                else
+                if (eventHandler != null)
                 {
                     eventHandler(ref ev);
+                }
+                else if (_customEventHandler != null && !_customEventHandler(ref ev))
+                {
+                    HandleEvent(&ev);
                 }
             }
             _events.Clear();
@@ -1145,5 +1149,5 @@ namespace Veldrid.Sdl2
         }
     }
 
-    public delegate void SDLEventHandler(ref SDL_Event ev);
+    public delegate bool SDLEventHandler(ref SDL_Event ev);
 }
